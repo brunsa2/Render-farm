@@ -2,3 +2,4 @@
 *.xcodeproj/*
 bin/*
 .DS_Store
+conf/*

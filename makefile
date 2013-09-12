@@ -20,7 +20,7 @@ YACC_SOURCES = $(foreach dir, $(DIRS), $(wildcard $(dir)*.ypp))
 
 LEX_OUTPUT = $(patsubst %.lpp, %.cpp, $(LEX_SOURCES))
 YACC_OUTPUT = $(patsubst %.ypp, %.cpp, $(YACC_SOURCES))
-YACC_OUTPUT_HEADERS = $(patsubst %.ypp, %.hpp, $(YACC_SOURCES))
+YACC_OUTPUT_ARTIFACTS = $(patsubst %.ypp, %.hpp, $(YACC_SOURCES)) $(patsubst %.ypp, %.output, $(YACC_SOURCES))
 
 OBJECTS = $(patsubst %.cpp, %.o, $(SOURCES))
 LEX_OBJECTS = $(patsubst %.lpp, %.o, $(LEX_SOURCES))
@@ -35,15 +35,15 @@ YACC_OBJECTS = $(patsubst %.ypp, %.o, $(YACC_SOURCES))
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $(WARNING_FLAGS) $(CFLAGS) -o $@ $<
 
-all: $(LEX_OUTPUT) $(YACC_OUTPUT) $(LEX_OBJECTS) $(YACC_OBJECTS) $(OBJECTS) $(BIN_DIR)$(EXEC)
+all: $(YACC_OUTPUT) $(LEX_OUTPUT) $(YACC_OBJECTS) $(LEX_OBJECTS) $(OBJECTS) $(BIN_DIR)$(EXEC)
 
-$(BIN_DIR)$(EXEC): $(LEX_OBJECTS) $(YACC_OBJECTS) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)$(EXEC) $(OBJECTS) $(LEX_OBJECTS) $(YACC_OBJECTS)
+$(BIN_DIR)$(EXEC): $(YACC_OBJECTS) $(LEX_OBJECTS) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)$(EXEC) $(OBJECTS) $(YACC_OBJECTS) $(LEX_OBJECTS)
 
-generatecode: $(LEX_OUTPUT) $(YACC_OUTPUT)
+generatecode: lex yacc
 
 clean:
-	rm -f $(LEX_OUTPUT) $(YACC_OUTPUT) $(YACC_OUTPUT_HEADERS) $(OBJECTS) $(LEX_OBJECTS) $(YACC_OBJECTS) $(BIN_DIR)$(EXEC)
+	rm -f $(YACC_OUTPUT) $(YACC_OUTPUT_ARTIFACTS) $(LEX_OUTPUT) $(OBJECTS) $(YACC_OBJECTS) $(LEX_OBJECTS) $(BIN_DIR)$(EXEC)
 
 lex: $(LEX_OUTPUT)
 

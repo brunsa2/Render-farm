@@ -1,0 +1,42 @@
+%{
+    #include <iostream>
+    
+    using namespace std;
+    
+    extern int yylex(void);
+    extern int current_line_number, current_column_number;
+    
+    void yyerror(const char *message) {
+        cerr << "Error at " << current_line_number << "," << current_column_number << ": " << message << endl;
+    }
+%}
+
+%union {
+    char *string;
+}
+
+%token <string> WORD
+%start statements
+
+%%
+
+statements: { cout << "Begin statement" << endl; } statement statements { cout << "End statement" << endl; }
+            |
+            ;
+
+statement: words { cout << "Begin statement" << endl; } statement_body { cout << "End statement" << endl; }
+
+statement_body: simple_statement_body
+               | compound_statement_body
+               ;
+
+simple_statement_body: ';' { cout << "Statement body" << endl; }
+                       ;
+
+words: WORD { cout << "Word " << $1 << endl; } words
+       |
+       ;
+
+compound_statement_body: { cout << "Begin compound statement" << endl; } '{' statements '}' { cout << "End compound statement body" << endl; }
+
+%%
