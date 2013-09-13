@@ -1,42 +1,54 @@
 %{
     #include <iostream>
+    #include <string>
+    #include <list>
+    
+    #include "conf_file_element.h"
+    #include "conf_file_section.h"
     
     using namespace std;
     
     extern int yylex(void);
     extern int current_line_number, current_column_number;
+        
+    RenderFarm::ConfFileSection *tree;
     
     void yyerror(const char *message) {
         cerr << "Error at " << current_line_number << "," << current_column_number << ": " << message << endl;
     }
+    
+    int statement_list_count = 0, word_list_count = 0, string_count = 0;
 %}
 
 %union {
-    char *string;
+    string *str;
+    list<RenderFarm::ConfFileElement *> *statement_list;
+    list<string *> *word_list;
 }
 
-%token <string> WORD
-%start statements
+%token <str> WORD
+%type <statement_list> statements
+%type <word_list> words
+%start top
 
 %%
 
-statements: { cout << "Begin statement" << endl; } statement statements { cout << "End statement" << endl; }
-            |
+top: statements { delete $1; statement_list_count--; cout << "Parse complete" << endl << statement_list_count << " statement lists" << endl << word_list_count << " word lists" << endl << string_count << " strings"; }
+
+statements: statement statements { $2->push_front(NULL); $$ = $2; }
+            | { statement_list_count++; $$ = new list<RenderFarm::ConfFileElement *>(); }
             ;
 
-statement: words { cout << "Begin statement" << endl; } statement_body { cout << "End statement" << endl; }
+statement: words { cout << "Begin statement" << endl; } statement_termination { cout << "End statement" << endl; }
 
-statement_body: simple_statement_body
-               | compound_statement_body
-               ;
-
-simple_statement_body: ';' { cout << "Statement body" << endl; }
+statement_termination: ';'
+                       | compound_statement
                        ;
 
-words: WORD { cout << "Word " << $1 << endl; } words
-       |
-       ;
+compound_statement: '{' statements '}' { delete $2; statement_list_count--; cout << "End compound statement body" << endl; }
 
-compound_statement_body: { cout << "Begin compound statement" << endl; } '{' statements '}' { cout << "End compound statement body" << endl; }
+words: WORD words { $2->push_front($1); string_count++; $$ = $2; }
+       | { word_list_count++; $$ = new list<string *>();}
+       ;
 
 %%
