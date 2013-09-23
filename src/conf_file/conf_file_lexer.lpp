@@ -1,8 +1,10 @@
 %{
     #include <string>
     #include <list>
-    
+        
     #include "conf_file_element.h"
+    #include "conf_file_section.h"
+    #include "conf_file_statement.h"
     #include "conf_file_parser.hpp"
         
     int current_line_number = 1, current_column_number = 1;
@@ -15,7 +17,8 @@
 
 %%
 
-\n { current_line_number++; current_column_number = 1; }
+"//"[^\r\n]*(\n) { current_column_number = 1; current_line_number++; }
+(\r\n|\r|\n) { current_line_number++; current_column_number = 1; }
 [ \t] { current_column_number++; }
 
 [A-Za-z0-9\-\/\.]* { yylval.str = new string(yytext); current_column_number += strlen(yytext); return WORD; }

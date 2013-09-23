@@ -5,5 +5,4 @@
 using namespace std;
 
 RenderFarm::ConfFileElement::~ConfFileElement() {
-    cout << "Delete element" << endl;
 }

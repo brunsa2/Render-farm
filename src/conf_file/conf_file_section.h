@@ -15,6 +15,7 @@ namespace RenderFarm {
         ~ConfFileSection();
         ConfFileSection& operator=(ConfFileSection const &other);
         void set_elements(list<ConfFileElement *> *elements);
+        void dump(void) const;
     private:
         list<ConfFileElement *> *_elements;
     };

@@ -7,6 +7,7 @@ namespace RenderFarm {
     class ConfFileElement {
     public:
         virtual ~ConfFileElement();
+        virtual void dump(void) const = 0;
     };
 }
 
